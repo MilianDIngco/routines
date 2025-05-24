@@ -2,6 +2,9 @@ import os
 import sys
 import termios
 import tty
+import threading
+import time
+import pyfiglet
 
 '''
 MOVEMENT
@@ -133,8 +136,10 @@ if __name__ == "__main__":
     height = size.lines - 10
     screen = ""
     
-    add_screen(set_fg_col(255, 100, 0))
-    add_screen(" hello")
+    add_screen(set_fg_col(55, 100, 50))
+    add_screen("hello")
     add_screen(draw_rect(get_center_row(height), get_center_col(width), width, height))
     print(screen)
 
+    ascii_banner = pyfiglet.figlet_format("Title Banner")
+    print(ascii_banner)
