@@ -45,7 +45,7 @@ def main():
                 print("\nYou selected Option 1")
             elif selected == 1:
                 print("\nYou selected Option 2")
-            print("Press any key to continue...")
+            print("Press any key to continue... yurt")
             get_key()
 
 if __name__ == "__main__":
