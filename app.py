@@ -25,7 +25,42 @@ TEXT COLOR
 \033[34m           // set blue
 \033[1m            // set bold
 
+█
 '''
+block = '█'
+
+def cursor_to(row, col):
+    return f"\033[{row};{col}H"
+
+def draw_block(row, col):
+    str = cursor_to(row, col) + block
+    return str
+
+def draw_char(row, col, char):
+    str = cursor_to(row, col) + char
+    return str
+
+def draw_rect(row, col, width, height):
+    str = cursor_to(row, col)
+    for _ in range(width):
+        str += block
+
+    for i in range(height):
+        current_row = row + 1 + i
+        str += cursor_to(current_row, col)
+        str += block
+        str += cursor_to(current_row, col + width)
+        str += block
+
+    str += cursor_to(row + height + 1, col)
+    for _ in range(width):
+        str += block
+
+    return str
+
+#def progress_bar(row, col, width, percent):
+    
+
 
 # Function to get a single keypress (raw input)
 def get_key():
@@ -71,6 +106,10 @@ def main():
                 print("\nYou selected Option 2")
             print("Press any key to continue... yurt█")
             get_key()
+            draw_block(10, 10)
 
 if __name__ == "__main__":
-    main()
+    #main()
+    clear_screen()
+    print(draw_rect(0, 0, 6, 3))
+    print(os.get_terminal_size().columns)
