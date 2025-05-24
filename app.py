@@ -141,5 +141,5 @@ if __name__ == "__main__":
     add_screen(draw_rect(get_center_row(height), get_center_col(width), width, height))
     print(screen)
 
-    ascii_banner = pyfiglet.figlet_format("Title Banner")
+    ascii_banner = pyfiglet.figlet_format("Title Bann")
     print(ascii_banner)
