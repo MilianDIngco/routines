@@ -3,6 +3,30 @@ import sys
 import termios
 import tty
 
+'''
+MOVEMENT
+\033[<row>;<col>H  // move cursor to absolute position
+\033[<n>A          // move cursor up n rows
+\033[<n>B          // move cursor down n rows
+\033[<n>C          // move cursor right n cols
+\033[<n>D          // move cursor left n cols
+SCREEN AND LINE CONTROL
+\033[2J            // clear screen
+\033[K             // clear to end of line
+\033[1K            // clear from start of line to cursor
+\033[2K            // clear entire line
+\033[s             // save cursor position
+\033[u             // restore saved cursor position
+TEXT COLOR
+\033[0m            // reset all formatting
+\033[31m           // set red
+\033[32m           // set green
+\033[33m           // set yellow
+\033[34m           // set blue
+\033[1m            // set bold
+
+'''
+
 # Function to get a single keypress (raw input)
 def get_key():
     fd = sys.stdin.fileno()
@@ -45,7 +69,7 @@ def main():
                 print("\nYou selected Option 1")
             elif selected == 1:
                 print("\nYou selected Option 2")
-            print("Press any key to continue... yurt")
+            print("Press any key to continue... yurt█")
             get_key()
 
 if __name__ == "__main__":
