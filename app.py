@@ -29,6 +29,7 @@ TEXT COLOR
 '''
 block = '█'
 size = os.get_terminal_size()
+screen = ""
 
 def cursor_to(row, col):
     return f"\033[{row};{col}H"
@@ -64,6 +65,16 @@ def get_center_row(height):
 
 def get_center_col(width):
     return (int) (2 + size.columns / 2 - width / 2)
+
+def set_fg_col(r, g, b):
+    return f"\033[38;2;{r};{g};{b}m"
+
+def set_bg_col(r, g, b):
+    return f"\033[48;2;{r};{g};{b}m"
+
+def add_screen(value):
+    global screen
+    screen += value 
 
 #def progress_bar(row, col, width, percent):
     
@@ -120,5 +131,10 @@ if __name__ == "__main__":
     clear_screen()
     width = size.columns - 10
     height = size.lines - 10
-    print(draw_rect(get_center_row(height), get_center_col(width), width, height))
+    screen = ""
+    
+    add_screen(set_fg_col(255, 100, 0))
+    add_screen(" hello")
+    add_screen(draw_rect(get_center_row(height), get_center_col(width), width, height))
+    print(screen)
 
