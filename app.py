@@ -50,7 +50,7 @@ def draw_rect(row, col, width, height):
         current_row = row + 1 + i
         str += cursor_to(current_row, col)
         str += block
-        str += cursor_to(current_row, col + width)
+        str += cursor_to(current_row, col + width - 1)
         str += block
 
     str += cursor_to(row + height + 1, col)
@@ -112,6 +112,6 @@ def main():
 if __name__ == "__main__":
     #main()
     clear_screen()
-    print(draw_rect(0, 0, 6, 3))
+    print(draw_rect(1, 1, 6, 3))
 
-    print(draw_rect(10, 10, 5, 3))
+    print(draw_rect(10, 1, 6, 3))
