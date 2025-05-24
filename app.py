@@ -28,6 +28,7 @@ TEXT COLOR
 █
 '''
 block = '█'
+size = os.get_terminal_size()
 
 def cursor_to(row, col):
     return f"\033[{row};{col}H"
@@ -112,4 +113,5 @@ if __name__ == "__main__":
     #main()
     clear_screen()
     print(draw_rect(0, 0, 6, 3))
-    print(os.get_terminal_size().columns)
+
+    print(draw_rect(10, 10, 5, 3))
