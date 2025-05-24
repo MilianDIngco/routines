@@ -59,6 +59,12 @@ def draw_rect(row, col, width, height):
 
     return str
 
+def get_center_row(height):
+    return (int) (size.lines / 2 - height / 2)
+
+def get_center_col(width):
+    return (int) (2 + size.columns / 2 - width / 2)
+
 #def progress_bar(row, col, width, percent):
     
 
@@ -112,6 +118,7 @@ def main():
 if __name__ == "__main__":
     #main()
     clear_screen()
-    print(draw_rect(1, 1, 6, 3))
+    width = size.columns - 10
+    height = size.lines - 10
+    print(draw_rect(get_center_row(height), get_center_col(width), width, height))
 
-    print(draw_rect(10, 1, 6, 3))
