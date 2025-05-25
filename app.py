@@ -6,6 +6,7 @@ import threading
 import time
 from typing import List
 import pyfiglet
+import queue
 
 '''
 MOVEMENT
@@ -207,19 +208,44 @@ class Menu:
     def select(self):
         self.options[self.selected][2]()
 
-# Function to get a single keypress (raw input)
-def get_key():
+def input_handler():
+    global running 
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
     try:
-        tty.setraw(fd)
-        ch = sys.stdin.read(1)  # Read one char
+        tty.setcbreak(fd)
+        while running:
+            key = sys.stdin.read(1)
+            input_queue.put(key)
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+
+def graphics_handler():
+    global running
+    while running:
+        screen.display_menu(main_menu)
+        screen.update_screen()
+
+        while not input_queue.empty():
+            key = input_queue.get()
+        
+            if key == 'q':
+                running = False
+            elif key == 'w':  # Move up
+                main_menu.up()
+            elif key == 's':  # Move down
+                main_menu.down()
+            elif key in ('\n', '\r'):  # Enter key
+                main_menu.select()
+        
+        time.sleep(1/30)
+
+    screen.clear_screen()
 
 screen = Screen()
 main_menu = Menu("Main Menu")
+running = True
+
 
 main_menu.add_option([
     ("Morning routine", "*", lambda: screen.draw_char(1, 3, '1')),
@@ -232,25 +258,14 @@ main_menu.add_option([
     ("Quit", "~", lambda: screen.draw_char(1, 3, '8'))
 ])
 
-def main():
-
-    while True:
-        screen.display_menu(main_menu)
-        screen.update_screen()
-
-        key = get_key()
-        
-        if key == 'q':
-            break
-        elif key == 'w':  # Move up
-            main_menu.up()
-        elif key == 's':  # Move down
-            main_menu.down()
-        elif key in ('\n', '\r'):  # Enter key
-            main_menu.select()
-
-    screen.clear_screen()
+input_queue = queue.Queue()
 
 if __name__ == "__main__":
-    main()
+    input_thread = threading.Thread(target=input_handler, daemon=True)
+    render_thread = threading.Thread(target=graphics_handler)
 
+    input_thread.start()
+    render_thread.start()
+
+    render_thread.join()
+    input_thread.join()
