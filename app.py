@@ -33,7 +33,6 @@ TEXT COLOR
 '''
 block = '█'
 size = os.get_terminal_size()
-screen = ""
 
 class Routine:
 
@@ -52,9 +51,9 @@ class Routine:
                 break
 
         if (new_name != ""):
-            self.tasks[1] = new_name
+            self.tasks[index] = (new_name, self.tasks[index][1])
         if (new_duration != -1):
-            self.tasks[0] = new_duration
+            self.tasks[index] = (self.tasks[index][0], new_duration)
 
     def edit_name(self, new_name):
         self.name = new_name
@@ -170,7 +169,8 @@ class Screen:
 
     def update_screen(self):
         self.clear_screen()
-        print(self.screen, end='')
+        sys.stdout.write(self.screen)
+        sys.stdout.flush()
         self.screen = ""
 
 class Menu:
@@ -225,35 +225,8 @@ def get_key():
 
 # Draw menu with selection highlighting
 
-'''
 def main():
-    selected = 0
-    options = 3
-    while True:
-        draw_menu(selected)
-        key = get_key()
-        
-        if key == 'q' or (key == '\n' and selected == options-1):
-            break
-        elif key == 'w':  # Move up
-            selected = (selected - 1) % options
-        elif key == 's':  # Move down
-            selected = (selected + 1) % options
-        elif key in ('\n', '\r'):  # Enter key
-            if selected == 0:
-        self.cursor_to(
-                print("\nYou selected Option 1")
-            elif selected == 1:
-                print("\nYou selected Option 2")
-            print("Press any key to continue... yurt█")
-            get_key()
-            draw_block(10, 10)
-'''
-
-if __name__ == "__main__":
-    #main()
     screen = Screen()
-    screen.clear_screen()
     
     main_menu = Menu("Main Menu")
     main_menu.add_option([
@@ -267,7 +240,22 @@ if __name__ == "__main__":
         ("Quit", "~", lambda x: x * x)
     ])
 
-    screen.display_menu(main_menu)
-    screen.update_screen()
+    while True:
+        screen.display_menu(main_menu)
+        screen.update_screen()
 
+        key = get_key()
+        
+        if key == 'q':
+            break
+        elif key == 'w':  # Move up
+            main_menu.up()
+        elif key == 's':  # Move down
+            main_menu.down()
+        '''elif key in ('\n', '\r'):  # Enter key
+            if selected == 0:
+        '''
+
+if __name__ == "__main__":
+    main()
 
