@@ -115,8 +115,20 @@ class Screen:
         self.screen += value 
 
     def clear_screen(self):
-        print("\033[2J\033[H", end='')
+        sys.stdout.write("\033[2J\033[H")
+        sys.stdout.flush()
 
+    """
+    ███████████
+    █         █
+    █  title  █
+    █         █
+    █  1      █
+    █  2      █
+    █  3      █
+    █         █
+    ███████████
+    """
     def display_menu(self, menu):
         options = menu.options
 
@@ -155,17 +167,8 @@ class Screen:
             option_row += 1
             self.add_screen(self.cursor_to(option_row, option_col))
             
-        """
-        ███████████
-        █         █
-        █  title  █
-        █         █
-        █  1      █
-        █  2      █
-        █  3      █
-        █         █
-        ███████████
-        """
+        num = self.cursor_to(1, 1) + " " + str(menu.selected)
+        self.add_screen(num)
 
     def update_screen(self):
         self.clear_screen()
@@ -204,12 +207,6 @@ class Menu:
     def select(self):
         self.options[self.selected][2]()
 
-
-    
-#def progress_bar(row, col, width, percent):
-    
-
-
 # Function to get a single keypress (raw input)
 def get_key():
     fd = sys.stdin.fileno()
@@ -221,24 +218,21 @@ def get_key():
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
 
-# Clear the screen
+screen = Screen()
+main_menu = Menu("Main Menu")
 
-# Draw menu with selection highlighting
+main_menu.add_option([
+    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '1')),
+    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '2')),
+    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '3')),
+    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '4')),
+    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '5')),
+    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '6')),
+    ("Add new routine", "*", lambda: screen.draw_char(1, 3, '7')),
+    ("Quit", "~", lambda: screen.draw_char(1, 3, '8'))
+])
 
 def main():
-    screen = Screen()
-    
-    main_menu = Menu("Main Menu")
-    main_menu.add_option([
-        ("Morning routine", "*", lambda x: x*x),
-        ("Morning routine", "*", lambda x: x*x),
-        ("Morning routine", "*", lambda x: x*x),
-        ("Morning routine", "*", lambda x: x*x),
-        ("Morning routine", "*", lambda x: x*x),
-        ("Morning routine", "*", lambda x: x*x),
-        ("Add new routine", "*", lambda x: x * x),
-        ("Quit", "~", lambda x: x * x)
-    ])
 
     while True:
         screen.display_menu(main_menu)
@@ -252,9 +246,10 @@ def main():
             main_menu.up()
         elif key == 's':  # Move down
             main_menu.down()
-        '''elif key in ('\n', '\r'):  # Enter key
-            if selected == 0:
-        '''
+        elif key in ('\n', '\r'):  # Enter key
+            main_menu.select()
+
+    screen.clear_screen()
 
 if __name__ == "__main__":
     main()
