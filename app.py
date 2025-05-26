@@ -117,8 +117,14 @@ class Screen:
         self.screen += value 
 
     def clear_screen(self):
-        sys.stdout.write("\033c")
+        sys.stdout.write("\033[2J\033[H")
         sys.stdout.flush()
+        
+        for _ in range(5):
+            print(" " * size.columns)
+        sys.stdout.write("\033[H")
+        sys.stdout.flush()
+
 
     """
     ███████████
@@ -308,7 +314,7 @@ def graphics_handler():
             elif key in ('\n', '\r'):  # Enter key
                 screen.get_menu().select()
         
-        time.sleep(1/30)
+        time.sleep(1/10)
 
     screen.clear_screen()
 
