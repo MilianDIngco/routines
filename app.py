@@ -249,7 +249,8 @@ def update_main_menu():
 
     # Add routines
     for i, routine in enumerate(routines):
-        main_menu.add_option((routine.name, "*", lambda: screen.set_menu(i)))
+        func = lambda i=(i+1): (screen.set_menu(i))
+        main_menu.add_option((routine.name, "*", func))
 
     # Add option to add routine
     main_menu.add_option(("Add new routine", "=", lambda: screen.draw_char(1, 5, "adding")))
@@ -346,8 +347,6 @@ update_routine_menu(school_routine_menu, school_routine)
 screen.add_menu(morning_routine_menu)
 screen.add_menu(night_routine_menu)
 screen.add_menu(school_routine_menu)
-
-screen.set_menu(1)
 
 if __name__ == "__main__":
     input_thread = threading.Thread(target=input_handler, daemon=True)
