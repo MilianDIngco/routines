@@ -69,6 +69,7 @@ class Screen:
         self.screen = ""
         self.menus = []
         self.current_menu = 0
+        self.input = ""
 
     @staticmethod
     def cursor_to(row, col):
@@ -187,6 +188,12 @@ class Screen:
 
     def get_menu(self):
         return self.menus[self.current_menu]
+    
+    def set_input(self, word):
+        self.input = word
+        
+    def display_input(self):
+        self.draw_char(6, 6, self.input)
 
     def update_screen(self):
         self.clear_screen()
@@ -252,7 +259,6 @@ def update_main_menu():
 
     # Clear options
     main_menu.clear_options()
-    main_menu.clear_options()
 
     # Add routines
     for i, routine in enumerate(routines):
@@ -282,6 +288,15 @@ def update_routine_menu(menu, routine):
     # Add back to main menu
     menu.add_option(("Main menu", "~", lambda: screen.set_menu(0)))
 
+def get_line():
+    key = input_queue.get()
+    line = key
+    while key not in ('\n', '\r'):
+        key = input_queue.get()
+        line += key
+
+    return line
+
 def input_handler():
     global running 
     fd = sys.stdin.fileno()
@@ -297,31 +312,54 @@ def input_handler():
 def graphics_handler():
     global size
     global running
+    global get_word
+    global word
+
     while running:
         size = os.get_terminal_size()
         screen.display_menu()
         screen.update_screen()
+        if get_word:
+            screen.display_input()
 
         while not input_queue.empty():
             key = input_queue.get()
-        
+       
+            if get_word:
+                if key in ('\r', '\n'):
+                    word = ""
+                    get_word = False
+                elif key == '\x7f':
+                    word = word[:-1]
+                else:
+                    word += key
+
+                screen.set_input(word)
+                continue
+
             if key == 'q':
                 running = False
             elif key == 'w':  # Move up
                 screen.get_menu().up()
             elif key == 's':  # Move down
                 screen.get_menu().down()
-            elif key in ('\n', '\r'):  # Enter key
+            elif not get_word and key in ('\n', '\r'):  # Enter key
                 screen.get_menu().select()
+            elif key == 'p':
+                get_word = True
+
         
-        time.sleep(1/10)
+        time.sleep(1/20)
 
 input_queue = queue.Queue()
+word_queue = queue.Queue()
 screen = Screen()
 main_menu = Menu("Main Menu")
 screen.add_menu(main_menu)
 
 running = True
+get_word = False
+word = ""
 
 morning_routine_menu = Menu("Routine")
 morning_routine = Routine("Morning routine")
