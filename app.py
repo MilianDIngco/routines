@@ -316,8 +316,6 @@ def graphics_handler():
         
         time.sleep(1/10)
 
-    screen.clear_screen()
-
 input_queue = queue.Queue()
 screen = Screen()
 main_menu = Menu("Main Menu")
@@ -365,3 +363,4 @@ if __name__ == "__main__":
     render_thread.join()
     input_thread.join()
 
+    screen.clear_screen()
