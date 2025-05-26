@@ -117,7 +117,7 @@ class Screen:
         self.screen += value 
 
     def clear_screen(self):
-        sys.stdout.write("\033[2J\033[H")
+        sys.stdout.write("\033c")
         sys.stdout.flush()
 
     """
