@@ -246,6 +246,7 @@ def update_main_menu():
 
     # Clear options
     main_menu.clear_options()
+    main_menu.clear_options()
 
     # Add routines
     for i, routine in enumerate(routines):
