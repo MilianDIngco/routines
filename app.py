@@ -68,6 +68,7 @@ class Screen:
     def __init__(self):
         self.screen = ""
         self.menus = []
+        self.current_menu = 0
 
     @staticmethod
     def cursor_to(row, col):
@@ -130,7 +131,8 @@ class Screen:
     █         █
     ███████████
     """
-    def display_menu(self, menu):
+    def display_menu(self):
+        menu = self.menus[self.current_menu]
         options = menu.options
 
         max_width = len(menu.title)
@@ -171,6 +173,15 @@ class Screen:
         num = self.cursor_to(1, 1) + " " + str(menu.selected)
         self.add_screen(num)
 
+    def add_menu(self, menu):
+        self.menus.append(menu)
+
+    def set_menu(self, index):
+        self.current_menu = index 
+
+    def get_menu(self):
+        return self.menus[self.current_menu]
+
     def update_screen(self):
         self.clear_screen()
         sys.stdout.write(self.screen)
@@ -188,6 +199,9 @@ class Menu:
         self.options = []
         self.selected = 0
 
+    def set_title(self, title):
+        self.title = title 
+
     def add_option(self, options, index = -1):
         if (index == -1):
             index = len(self.options)
@@ -199,7 +213,7 @@ class Menu:
         else:
             self.options.insert(index, options)
 
-    def up(self):
+    def up(self): 
         self.selected = (self.selected - 1) % len(self.options)
 
     def down(self):
@@ -207,6 +221,58 @@ class Menu:
 
     def select(self):
         self.options[self.selected][2]()
+
+    def remove_option(self, name = "", index = -1):
+        if name != "":
+            for i, option in enumerate(self.options):
+                if option[0] == name:
+                    self.options.remove(i)
+                    return
+        if index != -1 and index < len(self.options):
+            self.options.remove(index)
+            return
+    
+    def clear_options(self):
+        self.options.clear()
+
+def end_program():
+    global running
+    running = False
+
+def update_main_menu():
+    global routines
+    global main_menu
+    global screen
+
+    # Clear options
+    main_menu.clear_options()
+
+    # Add routines
+    for i, routine in enumerate(routines):
+        main_menu.add_option((routine.name, "*", lambda: screen.set_menu(i)))
+
+    # Add option to add routine
+    main_menu.add_option(("Add new routine", "=", lambda: screen.draw_char(1, 5, "adding")))
+
+    # Add option to quit
+    main_menu.add_option(("Quit", "-", lambda: end_program()))
+
+def update_routine_menu(menu, routine):
+    global screen 
+
+    # Change name
+    menu.set_title(routine.name)
+
+    # Add tasks
+    for task in routine.tasks:
+        menu.add_option((task[0] + " " + str(task[1]), "-", lambda: screen.draw_char(1, 5, task[0])))
+
+    # Add new task
+    menu.add_option(("Add new task", "+", lambda: screen.draw_char(1, 5, "Adding task")))
+    # Add run routine
+    menu.add_option(("Run routine", "=", lambda: screen.draw_char(1, 5, "Running")))
+    # Add back to main menu
+    menu.add_option(("Main menu", "~", lambda: screen.set_menu(0)))
 
 def input_handler():
     global running 
@@ -221,9 +287,11 @@ def input_handler():
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
 def graphics_handler():
+    global size
     global running
     while running:
-        screen.display_menu(main_menu)
+        size = os.get_terminal_size()
+        screen.display_menu()
         screen.update_screen()
 
         while not input_queue.empty():
@@ -232,33 +300,54 @@ def graphics_handler():
             if key == 'q':
                 running = False
             elif key == 'w':  # Move up
-                main_menu.up()
+                screen.get_menu().up()
             elif key == 's':  # Move down
-                main_menu.down()
+                screen.get_menu().down()
             elif key in ('\n', '\r'):  # Enter key
-                main_menu.select()
+                screen.get_menu().select()
         
         time.sleep(1/30)
 
     screen.clear_screen()
 
+input_queue = queue.Queue()
 screen = Screen()
 main_menu = Menu("Main Menu")
+screen.add_menu(main_menu)
+
 running = True
 
+morning_routine_menu = Menu("Routine")
+morning_routine = Routine("Morning routine")
+morning_routine.add_task("Drink water", 60)
+morning_routine.add_task("Make bed", 120)
+morning_routine.add_task("Something else", 120)
 
-main_menu.add_option([
-    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '1')),
-    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '2')),
-    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '3')),
-    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '4')),
-    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '5')),
-    ("Morning routine", "*", lambda: screen.draw_char(1, 3, '6')),
-    ("Add new routine", "*", lambda: screen.draw_char(1, 3, '7')),
-    ("Quit", "~", lambda: screen.draw_char(1, 3, '8'))
-])
+night_routine_menu = Menu("Routine")
+night_routine = Routine("Nighttime routine")
+night_routine.add_task("Drink water", 60)
+night_routine.add_task("Make bed", 120)
+night_routine.add_task("Something else", 120)
 
-input_queue = queue.Queue()
+school_routine_menu = Menu("Routine")
+school_routine = Routine("School day")
+school_routine.add_task("Drink water", 60)
+school_routine.add_task("Make bed", 120)
+school_routine.add_task("Something else", 120)
+
+
+routines = [morning_routine, night_routine, school_routine]
+
+update_main_menu()
+update_routine_menu(morning_routine_menu, morning_routine)
+update_routine_menu(night_routine_menu, night_routine)
+update_routine_menu(school_routine_menu, school_routine)
+
+screen.add_menu(morning_routine_menu)
+screen.add_menu(night_routine_menu)
+screen.add_menu(school_routine_menu)
+
+screen.set_menu(1)
 
 if __name__ == "__main__":
     input_thread = threading.Thread(target=input_handler, daemon=True)
@@ -269,3 +358,4 @@ if __name__ == "__main__":
 
     render_thread.join()
     input_thread.join()
+
